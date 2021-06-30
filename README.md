@@ -1,0 +1,1 @@
+# codeql-go-vendor-extractor
