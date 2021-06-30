@@ -6,5 +6,37 @@ The [official extractor for golang](https://github.com/github/codeql-go/tree/cd1
 
 It's not the graceful for pure vendor mode.
 
-For example, this query below will failed on lgtm.com:
+For example, the result of this query below will be empty:
+
+https://lgtm.com/query/8418405387172037343/
+
+```
+import go
+
+from CallExpr e
+where e.getTarget().getName()="panic"
+select e
+```
+
+But it should find the function call here:
+
+https://github.com/ssst0n3/go-vendor-test/blob/main/vendor/st0n3/st0n3.go
+
+```
+package st0n3
+
+func Crash() {
+    panic("crash")
+}
+```
+
+
+
+## How to Use?
+
+```
+codeql database create -l go <DATABASE_NAME> -c "codeql-go-vendor-extractor"
+```
+
+
 
