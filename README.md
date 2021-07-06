@@ -35,8 +35,9 @@ func Crash() {
 ## How to Use?
 
 ```
-codeql database create -l go <DATABASE_NAME> -c "codeql-go-vendor-extractor"
+GO111MODULE=off codeql database create -l go <DATABASE_NAME> -c "vendor-extractor"
 ```
 
+And then, you will get the correct database.
 
 
