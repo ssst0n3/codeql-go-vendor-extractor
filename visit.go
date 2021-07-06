@@ -3,35 +3,10 @@ package codeql_go_vendor_extractor
 import (
 	"github.com/github/codeql-go/extractor/dbscheme"
 	"github.com/github/codeql-go/extractor/trap"
-	"github.com/github/codeql-go/extractor/util"
 	"github.com/ssst0n3/awesome_libs/awesome_error"
 	"github.com/ssst0n3/awesome_libs/log"
 	"golang.org/x/tools/go/packages"
 )
-
-func CollectPkgPathPre(pkg *packages.Package) bool {
-	return true
-}
-
-func CollectPkgPathPost(pkg *packages.Package, pkgDirs map[string]string, wantedRoots map[string]bool) {
-	if _, ok := pkgDirs[pkg.PkgPath]; !ok {
-		dir := util.GetPkgDir(pkg.PkgPath)
-		pkgDirs[pkg.PkgPath] = dir
-		wantedRoots[dir] = true
-		log.Logger.Infof("package %s's dir:%s", pkg.PkgPath, dir)
-	}
-}
-
-func CollectPkgPath(pkgs []*packages.Package) (pkgDirs map[string]string, wantedRoots map[string]bool) {
-	// a map of package path to source code directory
-	pkgDirs = make(map[string]string)
-	// root directories of packages that we want to extract
-	wantedRoots = make(map[string]bool)
-	packages.Visit(pkgs, CollectPkgPathPre, func(p *packages.Package) {
-		CollectPkgPathPost(p, pkgDirs, wantedRoots)
-	})
-	return
-}
 
 func ExtractTypePre(pkg *packages.Package) bool {
 	return true
