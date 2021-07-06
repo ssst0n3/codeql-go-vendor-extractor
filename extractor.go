@@ -7,7 +7,7 @@ import (
 )
 
 func LoadPackage(targetDir string, buildFlags []string, patterns []string) (pkgs []*packages.Package, err error) {
-	log.Logger.Info("Running packages.Load.")
+	log.Logger.Infof("Running packages.Load, targetDir: %s", targetDir)
 	cfg := &packages.Config{
 		Mode: packages.NeedName | packages.NeedFiles |
 			packages.NeedCompiledGoFiles |
@@ -27,3 +27,5 @@ func LoadPackage(targetDir string, buildFlags []string, patterns []string) (pkgs
 	log.Logger.Info("Done running packages.Load.")
 	return
 }
+
+

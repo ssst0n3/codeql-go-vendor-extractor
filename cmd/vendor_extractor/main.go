@@ -1,12 +1,9 @@
 package main
 
 import (
-	"github.com/davecgh/go-spew/spew"
-	"github.com/ssst0n3/awesome_libs/awesome_error"
 	"github.com/ssst0n3/awesome_libs/log"
 	codeql_go_vendor_extractor "github.com/ssst0n3/codeql-go-vendor-extractor"
 	"github.com/urfave/cli/v2"
-	"io/ioutil"
 	"os"
 )
 
@@ -18,10 +15,12 @@ func main() {
 	app := &cli.App{
 		Name:  "vendor_extractor",
 		Usage: usage,
-		Commands: []*cli.Command{
-
-		},
 		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "package",
+				Value: ".",
+				Usage: "package to be extract",
+			},
 			&cli.StringFlag{
 				Name:  "lang",
 				Value: "english",
@@ -33,17 +32,34 @@ func main() {
 				Usage: "Output information for helping debugging vendor_extractor",
 			},
 		},
-		Before: func(context *cli.Context) (err error) {
-			debug := context.Bool("debug")
-			if !debug {
-				log.Logger.SetOutput(ioutil.Discard)
-			} else {
-				log.Logger.Info("debug mode on")
+		Action: func(context *cli.Context) (err error) {
+			pkg := context.String("package")
+			pkgs, err := codeql_go_vendor_extractor.LoadPackage(
+				"", nil,
+				[]string{pkg},
+			)
+			if err != nil {
+				return
 			}
-			pkgs, err := codeql_go_vendor_extractor.LoadPackage("", nil, []string{"github.com/docker/docker/cmd/dockerd"})
-			awesome_error.CheckFatal(err)
-			spew.Dump(pkgs)
+			if len(pkgs) == 0 {
+				log.Logger.Info("No packages found.")
+			}
+			log.Logger.Info("Extracting universe scope.")
 			codeql_go_vendor_extractor.ExtractUniverseScope()
+			log.Logger.Info("Done extracting universe scope.")
+			//codeql_go_vendor_extractor.CollectPkgPath(pkgs)
+			codeql_go_vendor_extractor.ExtractType(pkgs)
+			log.Logger.Info("Done processing dependencies.")
+			codeql_go_vendor_extractor.ExtractPackages(pkgs)
+			return
+		},
+		Before: func(context *cli.Context) (err error) {
+			//debug := context.Bool("debug")
+			//if !debug {
+			//	log.Logger.SetOutput(ioutil.Discard)
+			//} else {
+			//	log.Logger.Info("debug mode on")
+			//}
 			return
 		},
 	}

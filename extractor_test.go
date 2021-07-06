@@ -1,17 +1,22 @@
 package codeql_go_vendor_extractor
 
 import (
+	"github.com/ssst0n3/awesome_libs/awesome_error"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 )
 
-func TestLoadPackage(t *testing.T) {
-	assert.NoError(t, os.Setenv("GO111MODULE", "off"))
-	gopath := os.Getenv("GOPATH")
-	assert.True(t, len(gopath) > 0)
-	targetDir := gopath + "/src/github.com/docker/docker"
-	buildFlags := []string{
+func init() {
+	awesome_error.CheckFatal(os.Setenv("GO111MODULE", "off"))
+	awesome_error.CheckFatal(os.Setenv("CODEQL_EXTRACTOR_GO_TRAP_DIR", "/tmp/ql/trap/go"))
+	awesome_error.CheckFatal(os.Setenv("CODEQL_EXTRACTOR_GO_SOURCE_ARCHIVE_DIR", "/tmp/ql/src"))
+}
+
+var (
+	gopath     = os.Getenv("GOPATH")
+	targetDir  = gopath + "/src/github.com/docker/docker"
+	buildFlags = []string{
 		"-tags", "netgo osusergo static_build apparmor seccomp journald",
 		"-installsuffix", "netgo",
 		"-buildmode=pie",
@@ -27,8 +32,21 @@ func TestLoadPackage(t *testing.T) {
 -X "github.com/docker/docker/dockerversion.InitCommitID=de40ad007797e0dcd8b7126f27bb87401d224240"
 -extldflags "-static"
 `}
-	pkgs, err := LoadPackage(targetDir, buildFlags, []string{"github.com/docker/docker/cmd/dockerd"})
+	pkgName    = "github.com/docker/docker/cmd/dockerd"
+	pkgPattern = []string{pkgName}
+)
+
+func TestLoadPackage(t *testing.T) {
+	assert.True(t, len(gopath) > 0)
+	pkgs, err := LoadPackage(targetDir, buildFlags, pkgPattern)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(pkgs))
-	assert.Equal(t, "github.com/docker/docker/cmd/dockerd", pkgs[0].PkgPath)
+	assert.Equal(t, pkgName, pkgs[0].PkgPath)
+}
+
+func TestExtractPackage(t *testing.T) {
+	assert.True(t, len(gopath) > 0)
+	pkgs, err := LoadPackage(targetDir, buildFlags, pkgPattern)
+	assert.NoError(t, err)
+	ExtractPackage(pkgs[0])
 }
