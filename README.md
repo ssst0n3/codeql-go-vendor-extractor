@@ -42,11 +42,9 @@ And then, you will get the correct database.
 
 For example:
 
-// TODO
-
 get vendor-extractor binary
 ```
-go get -u github.com/ssst0n3/go-vendor-test/cmd/vendor_extractor
+go get -u github.com/ssst0n3/codeql-go-vendor-extractor/cmd/vendor_extractor
 ```
 
 download source code
