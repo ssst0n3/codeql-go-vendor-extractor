@@ -1,4 +1,4 @@
-# codeql-go-vendor-extractor
+# (Migrated to https://github.com/ssst0n3/codeql-go-vendor now)codeql-go-vendor-extractor
 
 ## WHY?
 
